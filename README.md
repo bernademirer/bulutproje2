@@ -33,3 +33,25 @@ Simüle edilen her paket şu analitik verilere sahiptir:
 
 ### Mevcut Durum (Ekran Görüntüsü Notu)
 Şu an projenin "Veri Üretim" katmanı tamamlanmış ve yerel testleri başarıyla geçmiştir. AWS hesap onayı beklendiği için veriler terminal üzerinden doğrulanmaktadır.
+
+### Gün 1 (Devam) - 09.04.2026: AWS Entegrasyonu ve Canlı Akış
+
+* **AWS Servis Aktivasyonu:** Hesap yükseltme (upgrade) işlemleri tamamlanarak servisler tam yetkiyle kullanıma açıldı.
+* **Kinesis Yapılandırması:** AWS üzerinde **On-demand** kapasite modunda `BulutProjeStream` adlı veri akış kanalı (stream) oluşturuldu.
+* **Canlı Veri Akışı:** `sensor.py` scripti üzerinden üretilen trafik verileri, Boto3 SDK kullanılarak AWS Kinesis platformuna saniyede 1 paket olacak şekilde gönderilmeye başlandı.
+* **Veritabanı Hazırlığı:** Gelen verilerin kalıcı olarak saklanması amacıyla DynamoDB üzerinde `TrafikVerileri` tablosu; `junction_id` (Partition Key) ve `timestamp` (Sort Key) yapısıyla oluşturuldu.
+
+---
+
+###  Karşılaşılan Teknik Sorunlar ve Çözümler
+
+ **UnrecognizedClientException**  AWS sisteminin gönderilen güvenlik anahtarlarını (Access Key/Secret Key) tanıyamaması. | IAM üzerinden yeni bir anahtar seti oluşturuldu; tırnak işaretleri ve boşluk karakterleri kontrol edilerek kod içerisinde güncellendi. 
+ **AccessDeniedException**  IAM kullanıcısının Kinesis üzerinde `PutRecord` yetkisinin bulunmaması. | AWS IAM paneli üzerinden kullanıcıya `AmazonKinesisFullAccess` politikası atanarak yetkilendirme sağlandı. |
+ **Terminal Komut Hatası (cpy)**  VS Code üzerindeki yanlış konfigürasyon nedeniyle komutun `cpy` olarak tetiklenmesi. | VS Code `Executor Map` ayarları düzenlendi ve komut standart `py` launcher'a çekildi. 
+ **Metrik Gecikmesi** | CloudWatch grafiklerinin anlık olarak güncellenmemesi.  Veri iletiminin doğrulanması için Kinesis **"Data Viewer"** aracı kullanılarak ham veri (raw data) seviyesinde kontrol yapıldı. 
+
+###  Mevcut Durum 
+Şu an projenin **"Veri Üretim"** ve **"Veri Ingestion (Toplama)"** katmanları %100 çalışır durumdadır.
+* **Terminal Çıktısı:** Veriler her saniye terminalde analiz edilerek başarıyla AWS'ye iletilmektedir.
+* **AWS Doğrulaması:** Kinesis üzerindeki Shard'lar taranmış ve JSON paketlerinin bulut ortamına kayıpsız ulaştığı teyit edilmiştir.
+* **Gelecek Adım:** AWS Lambda fonksiyonu yazılarak, Kinesis'e düşen her verinin otomatik olarak DynamoDB tablosuna kaydedilmesi sağlanacaktır.
