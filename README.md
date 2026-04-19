@@ -80,9 +80,21 @@ Sistem kurulumu sırasında karşılaşılan problemler ve uygulanan çözümler
 
 ---
 
-### 🚀 Mevcut Durum (Özet)
+###  Mevcut Durum (Özet)
 1. **Producer:** `sensor.py` üzerinden saniyede 1 paket veri üretimi aktif.
 2. **Ingestion:** Kinesis Data Stream 'On-demand' modda veri topluyor.
 3. **Processing:** Lambda fonksiyonu tetikleniyor ve veriyi işliyor.
 4. **Storage:** DynamoDB tablosu Ankara trafik verilerini saklıyor.
 
+#### **5. Karşılaşılan Teknik Zorluklar ve Uygulanan Mühendislik Çözümleri**
+Projenin yayına alınma sürecinde saptanan kritik hatalar ve uygulanan "Best Practice" çözümler aşağıda listelenmiştir:
+
+* **Veri Tipi Uyuşmazlığı (Type Mismatch):** AWS DynamoDB'nin standart Python `float` veri tipini desteklememesi nedeniyle Lambda üzerinde `Decimal` kütüphanesi entegre edilmiştir. `json.loads(parse_float=Decimal)` metodolojisiyle veri kaybı önlenmiş ve yazma operasyonları stabilize edilmiştir.
+* **Kimlik Doğrulama (IAM Authentication):** Producer (`sensor.py`) katmanında yaşanan `UnrecognizedClientException` hatası, IAM Access Key rotasyonu ve kimlik bilgileri doğrulaması ile aşılmıştır.
+* **Runtime Syntax & Indentation:** Lambda fonksiyonu üzerinde oluşan sözdizimi hataları, Python PEP 8 standartlarına uygun hiyerarşik düzenleme ve 'Cold Start' deployment süreciyle giderilmiştir.
+* **Event Source Mapping (ESM):** Kinesis ve Lambda arasındaki tetikleme (Trigger) senkronizasyon kaybı, tetikleyicinin 'Latest Position' parametresiyle yeniden yapılandırılması sonucu çözülmüştür.
+
+#### **6. Sonuç ve Doğrulama (Verification)**
+19.04.2026 itibarıyla sistem uçtan uca test edilmiş; CloudWatch metrikleri üzerinden saniyede 1 paket (700+ başarılı tetiklenme) işleme kapasitesine ulaşıldığı ve DynamoDB tablosuna verilerin hatasız işlendiği teyit edilmiştir.
+
+**Sistem Durumu:**  TAMAMLANDI / AKTİF
