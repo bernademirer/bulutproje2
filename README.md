@@ -98,3 +98,9 @@ Projenin yayına alınma sürecinde saptanan kritik hatalar ve uygulanan "Best P
 19.04.2026 itibarıyla sistem uçtan uca test edilmiş; CloudWatch metrikleri üzerinden saniyede 1 paket (700+ başarılı tetiklenme) işleme kapasitesine ulaşıldığı ve DynamoDB tablosuna verilerin hatasız işlendiği teyit edilmiştir.
 
 **Sistem Durumu:**  TAMAMLANDI / AKTİF
+
+###  Git'e Yüklerken Security Keyler İle Birlikte Atamadığım İçin Yaptığım Değişiklikler 
+
+* **Credential Management:** Proje kapsamında kullanılan AWS IAM anahtarları, güvenlik protokolleri gereği kaynak koddan arındırılmıştır.
+* **Environment Variables:** Hassas veriler `.env` dosyası üzerinden yönetilmekte ve `python-dotenv` kütüphanesi ile çalışma zamanında yüklenmektedir.
+* **Git Integrity:** `.gitignore` dosyası yapılandırılarak hassas bilgilerin sürüm kontrol sistemine (GitHub) sızması engellenmiştir.
