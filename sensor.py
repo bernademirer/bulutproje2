@@ -5,7 +5,7 @@ from datetime import datetime
 import boto3
 import os 
 from dotenv import load_dotenv
-
+load_dotenv()
 # --- YAPILANDIRMA ---
 ACCESS_KEY = os.getenv("AWS_ACCESS_KEY")
 SECRET_KEY = os.getenv("AWS_SECRET_KEY")
