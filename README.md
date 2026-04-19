@@ -55,3 +55,34 @@ Simüle edilen her paket şu analitik verilere sahiptir:
 * **Terminal Çıktısı:** Veriler her saniye terminalde analiz edilerek başarıyla AWS'ye iletilmektedir.
 * **AWS Doğrulaması:** Kinesis üzerindeki Shard'lar taranmış ve JSON paketlerinin bulut ortamına kayıpsız ulaştığı teyit edilmiştir.
 * **Gelecek Adım:** AWS Lambda fonksiyonu yazılarak, Kinesis'e düşen her verinin otomatik olarak DynamoDB tablosuna kaydedilmesi sağlanacaktır.
+
+### Gün 2 19.04.2026
+
+### Tamamlanan Adım: AWS Lambda & DynamoDB Entegrasyonu
+
+Projenin veri işleme (Processing) ve kalıcılık (Persistence) katmanları başarıyla devreye alınmıştır.
+
+#### **1. AWS Lambda: Veri İşleyici (Transformer)**
+Kinesis Data Streams üzerinden gelen ham trafik verilerini anlık olarak işlemek üzere bir Python 3.12 Lambda fonksiyonu (`TrafikVeriIsleyici`) yayına alınmıştır.
+* **Tetikleme Mekanizması:** 'Event Source Mapping' kullanılarak Kinesis Stream ile Lambda arasında köprü kurulmuştur.
+* **Veri Kurtarma (Trim Horizon):** Tetikleyici ayarlarında `Starting Position: Trim Horizon` seçilerek, akış başladığı andan itibaren biriken tüm verilerin kayıpsız işlenmesi sağlanmıştır.
+
+#### **2. Karşılaşılan Teknik Zorluklar ve Çözümleri**
+Sistem kurulumu sırasında karşılaşılan problemler ve uygulanan çözümler:
+* **IAM Permission Refinement:** Lambda'nın On-demand modundaki Kinesis shard'larını keşfedebilmesi için standart izinlere ek olarak `kinesis:ListShards` ve `kinesis:DescribeStreamSummary` yetkileri 'Inline Policy' olarak tanımlanmıştır.
+* **UI Synchronization:** AWS Konsolu üzerindeki görsel 'Grey/Inactive' durum hatasına rağmen, CloudWatch metrikleri üzerinden sistemin fonksiyonelliği (Invocations) doğrulanmıştır.
+***Lambda CloudWatch loglarında `Runtime.UserCodeSyntaxError` saptanmıştır.
+
+
+#### **3. Performans ve Doğrulama**
+* **CloudWatch Metrikleri:** Yapılan testlerde Lambda fonksiyonunun **72 kez** başarılı bir şekilde tetiklendiği ve çalışma süresinin (Duration) optimize edildiği gözlemlenmiştir.
+* **Veri Kalıcılığı:** DynamoDB `Explore Table Items` üzerinden yapılan sorgulamada, yerel simülatörden gönderilen JSON paketlerinin tabloya başarıyla yazıldığı teyit edilmiştir.
+
+---
+
+### 🚀 Mevcut Durum (Özet)
+1. **Producer:** `sensor.py` üzerinden saniyede 1 paket veri üretimi aktif.
+2. **Ingestion:** Kinesis Data Stream 'On-demand' modda veri topluyor.
+3. **Processing:** Lambda fonksiyonu tetikleniyor ve veriyi işliyor.
+4. **Storage:** DynamoDB tablosu Ankara trafik verilerini saklıyor.
+
